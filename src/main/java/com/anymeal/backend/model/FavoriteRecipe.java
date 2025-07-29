@@ -1,6 +1,9 @@
-// --- PASO 1: Entidad (Entity) para Favoritos (NUEVO Y CORREGIDO) ---
-// Archivo: src/main/java/com/anymeal/backend/model/FavoriteRecipe.java
-// Propósito: Define la relación entre un usuario y una receta favorita en la base de datos.
+/*
+ * Archivo: FavoriteRecipe.java
+ * Propósito: Define la entidad 'FavoriteRecipe', que actúa como la tabla intermedia (pivote)
+ * para la relación "Muchos a Muchos" entre User y Recipe. Cada registro en esta tabla
+ * representa una receta marcada como favorita por un usuario.
+ */
 package com.anymeal.backend.model;
 
 import jakarta.persistence.*;
@@ -13,17 +16,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FavoriteRecipe {
 
-    // Se usa una clave compuesta para la tabla pivote.
+    // Se utiliza una clave primaria compuesta (userId y recipeId) definida en FavoriteRecipeId.
     @EmbeddedId
     private FavoriteRecipeId id;
 
+    // Relación "Muchos a Uno" con User.
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("userId") // Mapea la parte 'userId' de la clave compuesta.
+    // Mapea la parte 'userId' de la clave compuesta a esta relación.
+    @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 
+    // Relación "Muchos a Uno" con Recipe.
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("recipeId") // Mapea la parte 'recipeId' de la clave compuesta.
+    // Mapea la parte 'recipeId' de la clave compuesta a esta relación.
+    @MapsId("recipeId")
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 }

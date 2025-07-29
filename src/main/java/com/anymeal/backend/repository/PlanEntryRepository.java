@@ -1,3 +1,8 @@
+/*
+ * Archivo: PlanEntryRepository.java
+ * Propósito: Repositorio para la entidad PlanEntry. Permite realizar consultas sobre las
+ * entradas de comidas específicas que componen los planes diarios.
+ */
 package com.anymeal.backend.repository;
 
 import com.anymeal.backend.model.PlanEntry;
@@ -7,7 +12,11 @@ import java.util.List;
 
 @Repository
 public interface PlanEntryRepository extends JpaRepository<PlanEntry, Long> {
-    // Spring Data JPA crea este método automáticamente. No necesitas implementarlo.
-    // Busca todas las entradas de plan cuyos IDs de plan diario estén en la lista proporcionada.
+
+    /*
+     * Busca todas las entradas de plan cuyos IDs de plan diario (dailyPlanId)
+     * se encuentren en la lista de IDs proporcionada.
+     * Es útil para obtener todas las comidas de varios días a la vez.
+     */
     List<PlanEntry> findByDailyPlanIdIn(List<Long> dailyPlanIds);
 }

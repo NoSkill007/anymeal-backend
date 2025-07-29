@@ -1,3 +1,5 @@
+// archivo Role.java
+
 package com.anymeal.backend.model;
 
 /**

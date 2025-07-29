@@ -1,3 +1,4 @@
+// archivo User.java
 package com.anymeal.backend.model;
 
 import jakarta.persistence.*;

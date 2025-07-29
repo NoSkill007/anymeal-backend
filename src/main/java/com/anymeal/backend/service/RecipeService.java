@@ -1,3 +1,8 @@
+/*
+ * Archivo: RecipeService.java
+ * Propósito: Este servicio gestiona la lógica de negocio para las recetas. Se encarga
+ * de buscarlas y de obtener sus detalles, manejando la carga de datos relacionados.
+ */
 package com.anymeal.backend.service;
 
 import com.anymeal.backend.dto.RecipeDetailResponse;
@@ -6,11 +11,10 @@ import com.anymeal.backend.model.Recipe;
 import com.anymeal.backend.model.RecipeIngredient;
 import com.anymeal.backend.repository.RecipeRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate; // Importa la clase Hibernate
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Importa la anotación Transactional
-
-import java.util.ArrayList; // Importa ArrayList
+import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -22,40 +26,41 @@ public class RecipeService {
 
     private final RecipeRepository recipeRepository;
 
+    // Busca recetas, opcionalmente filtradas por un término de búsqueda.
     public List<RecipePreviewResponse> searchRecipes(String query) {
         List<Recipe> recipes;
+        // Si no hay término de búsqueda, devuelve todas las recetas.
         if (query == null || query.trim().isEmpty()) {
             recipes = recipeRepository.findAll();
         } else {
+            // Si hay término, usa la consulta de búsqueda personalizada.
             recipes = recipeRepository.searchRecipes(query.trim());
         }
-
+        // Mapea los resultados a DTOs de previsualización.
         return recipes.stream()
                 .map(this::mapToRecipePreviewResponse)
                 .collect(Collectors.toList());
     }
 
-    // ¡Añade @Transactional aquí!
-    // Esto asegura que la sesión de Hibernate esté abierta cuando intentemos inicializar la colección LAZY.
-    @Transactional
+    /*
+     * Obtiene los detalles completos de una receta por su ID.
+     * @Transactional: Es crucial aquí para mantener la sesión de la base de datos abierta,
+     * lo que permite cargar colecciones con FetchType.LAZY (carga perezosa).
+     */
+    @Transactional(readOnly = true)
     public RecipeDetailResponse getRecipeById(Long id) {
         Recipe recipe = recipeRepository.findById(id).orElse(null);
         if (recipe == null) {
             return null;
         }
-
-        // ¡Importante! Forzar la inicialización de la colección 'ingredients' aquí.
-        // Esto la carga completamente de la base de datos antes de que se intente hacer stream.
-        // Solo es necesario si 'ingredients' está configurado con FetchType.LAZY en la entidad Recipe.
+        // Forzamos la inicialización de la colección de ingredientes, que es LAZY.
+        // Esto carga los datos de la base de datos antes de que la sesión se cierre.
         Hibernate.initialize(recipe.getIngredients());
-
-        // Si tu entidad Recipe también tiene una colección de pasos (ej. List<RecipeStep>)
-        // y usas LAZY, también inicialízala:
-        // Hibernate.initialize(recipe.getSteps());
-
+        // Mapea la entidad a un DTO de detalles y lo devuelve.
         return mapToRecipeDetailResponse(recipe);
     }
 
+    // Mapea una entidad Recipe a un DTO de previsualización.
     private RecipePreviewResponse mapToRecipePreviewResponse(Recipe recipe) {
         return RecipePreviewResponse.builder()
                 .id(recipe.getId())
@@ -67,20 +72,19 @@ public class RecipeService {
                 .build();
     }
 
+    // Mapea una entidad Recipe a un DTO de detalles completos.
     private RecipeDetailResponse mapToRecipeDetailResponse(Recipe recipe) {
-        // --- CAMBIO CLAVE AQUÍ ---
-        // Primero, crea una copia de la colección de ingredientes.
-        // Esto asegura que el stream opere sobre una lista independiente y no sobre la colección proxy de Hibernate.
+        // Se crea una copia de la colección para operar de forma segura y evitar problemas con el proxy de Hibernate.
         List<RecipeIngredient> safeIngredients = new ArrayList<>(recipe.getIngredients());
-
-        List<String> ingredients = safeIngredients.stream() // Usa la copia segura
+        // Extrae las descripciones originales de los ingredientes.
+        List<String> ingredients = safeIngredients.stream()
                 .map(RecipeIngredient::getOriginalDescription)
                 .collect(Collectors.toList());
-
+        // Procesa el string de instrucciones para convertirlo en una lista de pasos.
         List<String> steps = (recipe.getInstructions() != null && !recipe.getInstructions().isEmpty())
-                ? Arrays.asList(recipe.getInstructions().split("\\r?\\n")) // Divide los pasos por saltos de línea
+                ? Arrays.asList(recipe.getInstructions().split("\\r?\\n")) // Divide por saltos de línea.
                 : Collections.emptyList();
-
+        // Construye y devuelve el DTO de respuesta.
         return RecipeDetailResponse.builder()
                 .id(recipe.getId())
                 .title(recipe.getTitle())

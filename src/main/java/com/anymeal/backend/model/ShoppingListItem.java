@@ -1,5 +1,4 @@
-// --- PASO 1: Entidad (Entity) ---
-// Archivo: src/main/java/com/anymeal/backend/model/ShoppingListItem.java
+// Archivo: ShoppingListItem.java
 package com.anymeal.backend.model;
 
 import jakarta.persistence.*;

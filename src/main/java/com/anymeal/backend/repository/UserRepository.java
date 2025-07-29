@@ -1,25 +1,28 @@
-// --- PASO 2: Repositorio de Usuario (UserRepository) ACTUALIZADO ---
-// Archivo: src/main/java/com/anymeal/backend/repository/UserRepository.java
-// Propósito: Se utiliza tu repositorio y se le añade el método necesario.
+/*
+ * Archivo: UserRepository.java
+ * Propósito: Repositorio para la entidad User. Es fundamental para la seguridad y la gestión de usuarios,
+ * ya que proporciona los métodos para buscar usuarios en la base de datos por sus credenciales.
+ */
 package com.anymeal.backend.repository;
 
 import com.anymeal.backend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // Tu método existente se mantiene intacto.
+    // Busca un usuario por su nombre de usuario. Usado por Spring Security.
     Optional<User> findByUsername(String username);
 
-    // Tu otro método existente también se mantiene.
+    // Busca un usuario por su nombre de usuario o su correo electrónico. Permite iniciar sesión con cualquiera de los dos.
     Optional<User> findByUsernameOrEmail(String username, String email);
 
-    // --- CORRECCIÓN: Se añade el método que faltaba ---
-    // Esto es necesario para que el UserService pueda comprobar si un email ya existe.
-    // No romperá nada, Spring Data JPA lo implementa automáticamente.
+    /*
+     * Comprueba si ya existe un usuario con el correo electrónico proporcionado.
+     * Es útil para la validación durante el registro de nuevos usuarios.
+     * @return 'true' si el email ya está en uso, 'false' en caso contrario.
+     */
     Boolean existsByEmail(String email);
 }

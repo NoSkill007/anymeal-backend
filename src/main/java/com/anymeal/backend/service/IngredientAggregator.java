@@ -1,55 +1,49 @@
-// --- PASO 4: NUEVA CLASE DE AYUDA (Ingredient Aggregator) ---
-// Archivo: src/main/java/com/anymeal/backend/service/IngredientAggregator.java
+/*
+ * Archivo: IngredientAggregator.java
+ * Propósito: Clase de utilidad diseñada para agregar y consolidar una lista de ingredientes.
+ * Su función es sumar las cantidades de ingredientes idénticos y aplicar lógica de compra
+ * para generar una lista de compras más práctica y amigable para el usuario.
+ */
 package com.anymeal.backend.service;
 
 import com.anymeal.backend.model.Ingredient;
 import com.anymeal.backend.model.RecipeIngredient;
 import lombok.Getter;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Clase de ayuda para sumar y agrupar ingredientes.
- */
 public class IngredientAggregator {
 
-    // Mapa para almacenar los ingredientes sumados. La clave es el ID del ingrediente.
+    // Mapa para almacenar los ingredientes agregados. La clave es un identificador único.
     private final Map<Long, AggregatedIngredient> aggregated = new HashMap<>();
 
-    /**
-     * Procesa una lista de ingredientes de recetas y los suma.
-     * @param ingredientsForPlan La lista de ingredientes de las recetas del plan.
-     */
+    // Procesa una lista de RecipeIngredient y suma las cantidades.
     public void addIngredients(List<RecipeIngredient> ingredientsForPlan) {
         for (RecipeIngredient ri : ingredientsForPlan) {
             long ingredientId = ri.getIngredient().getId();
-            double amount = ri.getAmount() != null ? ri.getAmount() : 1.0; // Si no hay cantidad, asumimos 1
+            // Si la cantidad es nula, se asume 1.
+            double amount = ri.getAmount() != null ? ri.getAmount() : 1.0;
+            // Si la unidad es nula, se asume "unidad". Se convierte a minúsculas para consistencia.
             String unit = ri.getUnit() != null ? ri.getUnit().toLowerCase() : "unidad";
 
-            // Si ya tenemos este ingrediente, sumamos la cantidad.
-            // NOTA: Esto solo suma si las unidades son exactamente iguales.
-            // Una versión más avanzada podría convertir "tazas" a "cucharadas", etc.
+            // Si el ingrediente ya existe con la misma unidad, se suma la cantidad.
             if (aggregated.containsKey(ingredientId) && aggregated.get(ingredientId).getUnit().equals(unit)) {
                 aggregated.get(ingredientId).addAmount(amount);
             } else {
-                // Si es un ingrediente nuevo (o una unidad diferente), lo añadimos.
-                // Usamos una clave única para ingredientes con diferentes unidades.
+                // Si es un ingrediente nuevo o tiene una unidad diferente, se crea una nueva entrada.
+                // Se genera una clave única combinando el ID y el hash de la unidad para evitar colisiones.
                 long uniqueKey = ingredientId + unit.hashCode();
                 aggregated.put(uniqueKey, new AggregatedIngredient(ri.getIngredient(), amount, unit));
             }
         }
     }
 
-    /**
-     * Aplica lógica de redondeo para que la lista de compras sea más práctica.
-     */
+    // Aplica lógica de compra para redondear o agrupar ciertos ingredientes.
     public void applyShoppingLogic() {
         for (AggregatedIngredient ingredient : aggregated.values()) {
             String name = ingredient.getIngredient().getName().toLowerCase();
-
-            // Lógica para huevos: redondear a la media docena más cercana.
+            // Lógica para huevos: redondear a la media docena o docena más cercana.
             if (name.contains("egg")) {
                 double amount = ingredient.getAmount();
                 if (amount <= 6) {
@@ -57,12 +51,11 @@ public class IngredientAggregator {
                 } else if (amount <= 12) {
                     ingredient.setFinalUnit("Comprar 1 docena");
                 } else {
-                    ingredient.setFinalUnit("Comprar " + (int)Math.ceil(amount / 12) + " docenas");
+                    ingredient.setFinalUnit("Comprar " + (int) Math.ceil(amount / 12) + " docenas");
                 }
-                ingredient.setAmount(0); // Limpiamos la cantidad numérica
+                ingredient.setAmount(0); // Se limpia la cantidad numérica pues ya no es necesaria.
             }
-
-            // Lógica para leche: si se necesita cualquier cantidad, comprar 1 cartón.
+            // Lógica para leche: si se necesita cualquier cantidad, se sugiere comprar un cartón.
             if (name.contains("milk")) {
                 ingredient.setFinalUnit("Comprar 1 cartón de leche");
                 ingredient.setAmount(0);
@@ -70,19 +63,19 @@ public class IngredientAggregator {
         }
     }
 
+    // Devuelve el mapa con los ingredientes agregados y procesados.
     public Map<Long, AggregatedIngredient> getResult() {
         return aggregated;
     }
 
-    /**
-     * Clase interna para guardar los datos de un ingrediente agregado.
-     */
+    // Clase interna para almacenar los datos de un ingrediente consolidado.
     @Getter
     public static class AggregatedIngredient {
         private final Ingredient ingredient;
         private double amount;
         private final String unit;
-        private String finalUnit; // Para la lógica de redondeo
+        // Campo para la unidad final tras aplicar la lógica de compra (ej: "Comprar 1 docena").
+        private String finalUnit;
 
         public AggregatedIngredient(Ingredient ingredient, double amount, String unit) {
             this.ingredient = ingredient;

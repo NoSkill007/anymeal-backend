@@ -1,4 +1,4 @@
-// Archivo: src/main/java/com/anymeal/backend/service/ShoppingListService.java
+// Archivo: ShoppingListService.java
 package com.anymeal.backend.service;
 
 import com.anymeal.backend.dto.ShoppingListDtos.*;

@@ -1,3 +1,9 @@
+/*
+ * Archivo: RecipeIngredientId.java
+ * Propósito: Define la clave primaria compuesta para la entidad RecipeIngredient.
+ * Es una clase incrustable (@Embeddable) que contiene los campos que forman la clave única.
+ * Debe implementar Serializable como requisito de JPA.
+ */
 package com.anymeal.backend.model;
 
 import jakarta.persistence.Column;
@@ -5,31 +11,27 @@ import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
-import java.util.Objects; // Importa Objects
+import java.util.Objects;
 
-/**
- * Clase que representa la clave primaria compuesta de la tabla 'recipe_ingredients'.
- *
- * @Embeddable: Indica que esta clase puede ser incrustada en otras entidades.
- * Implementa Serializable: Requisito de JPA para claves compuestas.
- */
-@Data // Puedes mantener @Data, pero sobrescribiremos equals/hashCode
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
 public class RecipeIngredientId implements Serializable {
 
+    // El ID de la receta, parte de la clave compuesta.
     @Column(name = "recipe_id")
     private Long recipeId;
 
+    // El ID del ingrediente, parte de la clave compuesta.
     @Column(name = "ingredient_id")
     private Long ingredientId;
 
-    // --- ¡Implementación manual de equals y hashCode! ---
-    // CRÍTICO para claves compuestas en JPA.
-    // Deben basarse en los campos que forman la clave compuesta.
+    /*
+     * Es fundamental implementar equals() y hashCode() basándose en los campos que
+     * componen la clave para que JPA pueda manejar correctamente la identidad de los objetos.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

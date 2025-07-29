@@ -1,5 +1,4 @@
-// --- PASO 4: Servicio de Usuario (UserService) ---
-// Archivo: src/main/java/com/anymeal/backend/service/UserService.java
+// Archivo: UserService.java
 package com.anymeal.backend.service;
 
 import com.anymeal.backend.dto.UserResponse;
