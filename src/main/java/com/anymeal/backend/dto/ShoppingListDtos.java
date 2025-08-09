@@ -24,4 +24,7 @@ public class ShoppingListDtos {
 
     // DTO para la petición de actualizar un artículo, principalmente para marcarlo como comprado.
     public record UpdateItemRequest(boolean isChecked) {}
+
+    // DTO para la petición de editar el contenido de un artículo (nombre, cantidad, unidad).
+    public record EditItemRequest(String customName, Double amount, String unit) {}
 }

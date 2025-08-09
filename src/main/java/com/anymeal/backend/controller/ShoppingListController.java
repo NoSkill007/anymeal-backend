@@ -75,4 +75,43 @@ public class ShoppingListController {
         shoppingListService.clearCheckedItems(user);
         return ResponseEntity.ok().build();
     }
+
+    /*
+     * Endpoint para obtener la lista de compras actual del usuario.
+     * Mapeado a GET /api/v1/shopping-list.
+     * @param user: El usuario autenticado.
+     * @return Una respuesta HTTP 200 OK con la lista de compras actual, o un mapa vacío si no hay items.
+     */
+    @GetMapping
+    public ResponseEntity<ShoppingListResponse> getCurrentList(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(shoppingListService.getShoppingListForUser(user));
+    }
+
+    /*
+     * Endpoint para eliminar un ítem individual de la lista de compras.
+     * Mapeado a DELETE /api/v1/shopping-list/{itemId}.
+     * @param user: El usuario autenticado.
+     * @param itemId: El ID del ítem a eliminar.
+     * @return Una respuesta HTTP 204 No Content si se eliminó exitosamente, o 404 si no se encuentra.
+     */
+    @DeleteMapping("/{itemId}")
+    public ResponseEntity<Void> deleteItem(@AuthenticationPrincipal User user, @PathVariable Long itemId) {
+        boolean deleted = shoppingListService.deleteItem(user, itemId);
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+
+    /*
+     * Endpoint para editar el contenido de un ítem existente (nombre, cantidad, unidad).
+     * Mapeado a PUT /api/v1/shopping-list/{itemId}/edit.
+     * @param user: El usuario autenticado.
+     * @param itemId: El ID del ítem a editar.
+     * @param request: El cuerpo de la petición con los campos a actualizar (todos opcionales).
+     * @return Una respuesta 200 OK con el ítem actualizado, o 404 si el ítem no se encuentra.
+     */
+    @PutMapping("/{itemId}/edit")
+    public ResponseEntity<ShoppingItemDto> editItem(@AuthenticationPrincipal User user, @PathVariable Long itemId, @RequestBody EditItemRequest request) {
+        return shoppingListService.editItem(user, itemId, request)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

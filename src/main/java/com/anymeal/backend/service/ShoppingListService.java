@@ -101,4 +101,35 @@ public class ShoppingListService {
     public void clearCheckedItems(User user) {
         shoppingListItemRepository.deleteByUserIdAndIsChecked(user.getId(), true);
     }
+
+    @Transactional
+    public boolean deleteItem(User user, Long itemId) {
+        Optional<ShoppingListItem> item = shoppingListItemRepository.findByIdAndUserId(itemId, user.getId());
+        if (item.isPresent()) {
+            shoppingListItemRepository.delete(item.get());
+            return true;
+        }
+        return false;
+    }
+
+    @Transactional
+    public Optional<ShoppingItemDto> editItem(User user, Long itemId, EditItemRequest request) {
+        return shoppingListItemRepository.findByIdAndUserId(itemId, user.getId()).map(item -> {
+            // Actualizar solo los campos que no son null en el request
+            if (request.customName() != null) {
+                item.setCustomName(request.customName());
+            }
+            if (request.amount() != null) {
+                item.setAmount(request.amount());
+            }
+            if (request.unit() != null) {
+                item.setUnit(request.unit());
+            }
+
+            ShoppingListItem updated = shoppingListItemRepository.save(item);
+            return new ShoppingItemDto(updated.getId(),
+                    updated.getIngredient() != null ? updated.getIngredient().getName() : updated.getCustomName(),
+                    updated.getAmount(), updated.getUnit(), updated.getCategory(), updated.isChecked());
+        });
+    }
 }
