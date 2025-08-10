@@ -2,94 +2,76 @@
 
 A Spring Boot REST API backend for a meal planning and recipe management application. This university project provides comprehensive meal planning functionality with user authentication, recipe management, favorites, and shopping list generation.
 
-## Features
+## Main Features
 
-- **User Authentication & Authorization**: JWT-based authentication with secure login and registration
-- **Recipe Management**: Browse and view detailed recipe information
-- **Meal Planning**: Create and manage daily meal plans with customizable entries
-- **Favorites System**: Save and manage favorite recipes
-- **Shopping List**: Generate shopping lists from meal plans and manage shopping items
-- **User Profile Management**: Update user profiles and change passwords
+- **User Authentication & Authorization**: JWT-based secure login and registration system
+- **Recipe Management**: Browse and view detailed recipe information with search functionality
+- **Meal Planning**: Create and manage weekly meal plans with customizable daily entries
+- **Favorites System**: Save and manage favorite recipes for quick access
+- **Shopping List Generation**: Automatically generate shopping lists from meal plans and manage shopping items
+- **User Profile Management**: Update user profiles and change passwords securely
 
 ## Technologies Used
 
 - **Java 24**: Latest Java version for modern language features
 - **Spring Boot 3.5.3**: Main framework for REST API development
-- **Spring Security**: Authentication and authorization
-- **Spring Data JPA**: Database operations and ORM
+- **Spring Security**: Authentication and authorization with JWT tokens
+- **Spring Data JPA**: Database operations and ORM mapping
 - **Hibernate**: JPA implementation with MySQL dialect
-- **MySQL**: Primary database
-- **JWT (JSON Web Tokens)**: Stateless authentication
-- **Lombok**: Reduces boilerplate code
-- **Maven**: Dependency management and build tool
-
-## API Documentation
-
-### Authentication Endpoints
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/auth/login` | User login |
-| POST | `/auth/register` | User registration |
-
-### User Management
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/user/profile` | Get user profile |
-| PUT | `/api/v1/user/profile` | Update user profile |
-| PUT | `/api/v1/user/password` | Change user password |
-
-### Recipe Management
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/recipes` | Get all recipes |
-| GET | `/api/v1/recipes/{id}` | Get recipe details |
-
-### Meal Planning
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/plans` | Get user meal plans |
-| POST | `/api/v1/plans` | Create new meal plan |
-| DELETE | `/api/v1/plans/entries/{entryId}` | Delete plan entry |
-| PUT | `/api/v1/plans/{planId}/notes` | Update plan notes |
-
-### Favorites
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/favorites` | Get user favorites |
-| POST | `/api/v1/favorites` | Add recipe to favorites |
-| DELETE | `/api/v1/favorites/{recipeId}` | Remove from favorites |
-
-### Shopping List
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/shopping-list` | Get shopping list |
-| POST | `/api/v1/shopping-list` | Add shopping item |
-| POST | `/api/v1/shopping-list/generate` | Generate list from plans |
-| PUT | `/api/v1/shopping-list/{itemId}` | Update shopping item |
-| PUT | `/api/v1/shopping-list/{itemId}/edit` | Edit shopping item |
-| DELETE | `/api/v1/shopping-list/{itemId}` | Delete shopping item |
-| POST | `/api/v1/shopping-list/clear-checked` | Clear checked items |
+- **MySQL**: Primary relational database
+- **JWT (JSON Web Tokens)**: Stateless authentication mechanism
+- **Lombok**: Reduces boilerplate code in models and DTOs
+- **Maven**: Dependency management and build automation
 
 ## Architecture & Folder Structure
 
+The project follows a standard Spring Boot layered architecture:
+
 ```
 src/main/java/com/anymeal/backend/
-├── config/           # Security and application configuration
-├── controller/       # REST API endpoints
-├── dto/             # Data Transfer Objects for API requests/responses
-├── model/           # JPA entities (database models)
-├── repository/      # Data access layer (JPA repositories)
-└── service/         # Business logic layer
+├── config/          # Security, JWT, and application configuration
+├── controller/      # REST API endpoints and request handling
+├── dto/            # Data Transfer Objects for API communication
+├── model/          # JPA entities representing database tables
+├── repository/     # Data access layer with JPA repositories
+└── service/        # Business logic and service layer
 ```
 
-### Key Components
+- **Controller Layer**: Handles HTTP requests and responses
+- **Service Layer**: Contains business logic and coordinates between controllers and repositories
+- **Repository Layer**: Manages database operations using Spring Data JPA
+- **Model Layer**: Defines entity classes that map to database tables
+- **DTO Layer**: Provides structured data objects for API communication
 
-- **Controllers**: Handle HTTP requests and responses
-- **Services**: Contain business logic and coordinate between controllers and repositories
-- **Repositories**: Data access layer using Spring Data JPA
-- **Models**: JPA entities representing database tables (User, Recipe, DailyPlan, etc.)
-- **DTOs**: Request/response objects for API communication
-- **Config**: Security configuration including JWT authentication filter
+## API Overview
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| **Authentication** |
+| POST | `/auth/login` | User login with credentials |
+| POST | `/auth/register` | New user registration |
+| **User Management** |
+| GET | `/api/v1/user/profile` | Get current user profile |
+| PUT | `/api/v1/user/profile` | Update user profile |
+| PUT | `/api/v1/user/change-password` | Change user password |
+| **Recipes** |
+| GET | `/api/v1/recipes` | Search recipes (with optional query parameter) |
+| GET | `/api/v1/recipes/{id}` | Get detailed recipe information |
+| **Favorites** |
+| GET | `/api/v1/favorites` | Get user's favorite recipes |
+| POST | `/api/v1/favorites` | Add recipe to favorites |
+| DELETE | `/api/v1/favorites/{recipeId}` | Remove recipe from favorites |
+| **Meal Planning** |
+| GET | `/api/v1/plans` | Get weekly meal plan (with startDate parameter) |
+| POST | `/api/v1/plans` | Add recipe to meal plan |
+| DELETE | `/api/v1/plans/{planId}` | Remove recipe from meal plan |
+| PUT | `/api/v1/plans/{planId}/notes` | Update meal plan notes |
+| **Shopping List** |
+| POST | `/api/v1/shopping-list/generate` | Generate shopping list from meal plan |
+| GET | `/api/v1/shopping-list` | Get current shopping list |
+| POST | `/api/v1/shopping-list/items` | Add item to shopping list |
+| PUT | `/api/v1/shopping-list/items/{itemId}` | Update shopping list item |
+| DELETE | `/api/v1/shopping-list/clear-purchased` | Clear purchased items |
 
 ## Installation & Running
 
